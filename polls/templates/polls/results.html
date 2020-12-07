@@ -6,5 +6,12 @@
 {% endfor %}
 </ul>
 
+<!-- If the graph context is passed, display it. Meant to be given a html object (form plotly) directly -->
+{% if graph %}
+<div style="width:600;height:500">
+{{ graph|safe }}
+</div>
+{% endif %}
+
 <a href="{% url 'polls:detail' question.id %}">Vote again?</a>
 

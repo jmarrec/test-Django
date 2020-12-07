@@ -6,6 +6,11 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.utils import timezone
 from .models import Question, Choice
 
+import pandas as pd
+import plotly.offline as opy
+import plotly.graph_objs as go
+import plotly.express as px
+
 
 class IndexView(generic.ListView):
     template_name = 'polls/index.html'
@@ -29,6 +34,26 @@ class DetailView(generic.DetailView):
 class ResultsView(generic.DetailView):
     model = Question
     template_name = 'polls/results.html'
+
+    def get_context_data(self, **kwargs):
+
+        context = super(ResultsView, self).get_context_data(**kwargs)
+
+        # df_questions = pd.DataFrame(Question.objects.all().values())
+
+        question = self.object
+        df = pd.DataFrame(question.choice_set.all().values_list(),
+                          columns=[field.verbose_name
+                                   for field in Choice._meta.fields])
+
+        fig = px.bar(df, x='Choice', y='Votes')
+
+        graph = fig.to_html(full_html=False,
+                            default_height=500,
+                            default_width=700)
+        context['graph'] = graph
+
+        return context
 
 
 def vote(request, question_id):
